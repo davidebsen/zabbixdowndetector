@@ -16,7 +16,7 @@ Este projeto oferece uma solução integrada para monitorar o status de serviço
 - `downdetectorlist.list`: Lista configurável de serviços a serem monitorados.
 - `downdetector_result.json`: Arquivo que armazena os resultados das consultas.
 - `zbx_templates.xml`: Template Zabbix para importar configurações de itens e triggers.
-- `zbx_templates.xml`: Para visualização dos dados no painel.
+- `DownDetector-Grafana.json`: Para visualização dos dados no painel do Grafana.
 
 ## Pré-requisitos
 
@@ -28,7 +28,7 @@ Este projeto oferece uma solução integrada para monitorar o status de serviço
 ## Instalação
 
 #### Debian /Ubuntu ####
-1. **Instale as dependências**:
+# 1. **Instale as dependências**:
 ```sh
 sudo apt update
 sudo apt install git
@@ -37,13 +37,13 @@ apt install python3-pip; \
 pip install beautifulsoup4 playwright
 ```
 
-2. **Clone o repositório e mova arquivos:**:
+# 2. **Clone o repositório e mova arquivos:**:
 ```sh
 cd /tmp/
 git clone https://github.com/davidebsen/zabbixdowndetector.git
 cd zabbixdowndetector/
 ```
-# Mover os arquivos para o diretório de scripts do Zabbix
+ Mover os arquivos para o diretório de scripts do Zabbix
 ```sh
 sudo mv downdetector.py /usr/lib/zabbix/externalscripts
 sudo mv downdetector_check.py /usr/lib/zabbix/externalscripts
@@ -51,7 +51,7 @@ sudo mv downdetectorDiscovery.py /usr/lib/zabbix/externalscripts
 sudo mv downdetector_result.json /usr/lib/zabbix/externalscripts
 sudo mv downdetectorlist.list /usr/lib/zabbix/externalscripts
 ```
-# Ajustar as permissões dos arquivos
+ Ajustar as permissões dos arquivos
 ```sh
 sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetector.py
 sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetector_check.py
@@ -59,19 +59,12 @@ sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetectorDiscovery.py
 sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetector_result.json
 sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetectorlist.list
 ```
-# Alterar a propriedade dos arquivos para o usuário zabbix
+Alterar a propriedade dos arquivos para o usuário zabbix
 ```sh
 sudo chown zabbix. /usr/lib/zabbix/externalscripts/downdetector*
 ```
 
-3. **Configuração do Zabbix**:
-- Importe zbx_templates.xml no Zabbix.
-
-4. **Configuração do Grafana**:
-
-- Importe o template JSON no Grafana.
-
-5. **Configuração do Cron**:
+# 3. **Configuração do Cron**:
 
 Para automatizar a execução do script downdetector.py, configure o cron da seguinte forma:
 - Executar Cron
@@ -86,11 +79,33 @@ crontab -e
 ```sh
 0 */2 * * * /usr/bin/python3 /usr/lib/zabbix/externalscripts/downdetector.py
 ```
+- Para iniciar basta dar reboot no sistema:
 
-6. **Configuração do downdetectorlist.list**:
+# 4. **Configuração do downdetectorlist.list**:
 Formato: status;site_id;Nome_do_Site
 - 1: O serviço será monitorado.
 - 0: O serviço não será monitorado.
 
 
-Nota Importante: Alterar do tempo de consulta do script pode levar a bloqueios pelo Cloudflare, que reconhece consultas excessivas como atividades de bot. Faça alterações por sua conta e risco.
+# 5. **Configuração de Logs**:
+
+O script downdetector.py pode registrar logs de suas operações. Por padrão, o logging está desativado para evitar a criação excessiva de arquivos de log.
+- Editar o Script: Abra o arquivo /usr/lib/zabbix/externalscripts/downdetector.py.
+- Ativar o Logging: Remova o # no início das linhas que contêm # log_message para ativar o registro de logs.
+- Local dos Logs: Os logs serão salvos como downdetector.log no diretório /usr/lib/zabbix/externalscripts. Para desativar os logs, adicione o # de volta nas linhas de log.
+
+
+# 6. **Configuração do Zabbix**:
+- Importe zbx_templates.xml no Zabbix.
+- Crie um host Downdetector.
+- selecione o template importado.
+- interface: agente ip 127.0.0.1
+
+# 7. **Configuração do Grafana**:
+
+- Importe o template JSON no Grafana.
+(edite com os host selecionados no downdetectorlist.lis)
+
+
+
+# Nota Importante: Alterar do tempo de consulta do script pode levar a bloqueios pelo Cloudflare, que reconhece consultas excessivas como atividades de bot. Faça alterações por sua conta e risco.
