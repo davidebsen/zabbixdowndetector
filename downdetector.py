@@ -139,19 +139,19 @@ async def main():
             await asyncio.sleep(60)  # Aguarda 1 minuto entre cada consulta de site
             request_count += 1
 
-            
+            # Pause after every 5 requests
             if request_count % 5 == 0:
-                # log_message("Pausando por 2 minutos após 5 consultas.")
-                await asyncio.sleep(120)  # Pausa por 2 minutos
+                log_message("Pausando por 2 minutos após 5 consultas.")
+                await asyncio.sleep(120)  
 
-       
+            # Pause after every 10 requests
             if request_count % 10 == 0:
-                # log_message("Pausando por 4 minutos após 10 consultas.")
-                await asyncio.sleep(240)  # Pausa por 4 minutos
+                log_message("Pausando por 5 minutos após 10 consultas.")
+                await asyncio.sleep(300)  
 
-   
-        # log_message("Pausando por 30 minutos após terminar a lista de sites.")
-        await asyncio.sleep(1800)  # Pausa por 30 minutos
+        # Pause for 30 minutes after finishing the list
+        log_message("Pausando por 1 Hora após terminar a lista de sites.")
+        await asyncio.sleep(3600)  
 
 if __name__ == '__main__':
     asyncio.run(main())
