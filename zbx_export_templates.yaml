@@ -1,0 +1,67 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-12-29T20:34:26Z'
+  groups:
+    - uuid: a5243686dc8848cdac9c9175aa5f705e
+      name: 'Templates RR'
+  templates:
+    - uuid: 97138599745b4f07801cbf6550b04f7f
+      template: 'RR DownDetector Discovery'
+      name: 'RR DownDetector Discovery'
+      groups:
+        - name: 'Templates RR'
+      discovery_rules:
+        - uuid: 4bb1c0fb3a20465a9b8afef898c5aa9b
+          name: 'Descoberta Site'
+          type: EXTERNAL
+          key: downdetectorDiscovery.py
+          item_prototypes:
+            - uuid: 8a496e9e65464724976bd09bb3952ad8
+              name: '{#SITE_NOME}'
+              type: EXTERNAL
+              key: 'downdetector_check.py[{#SITE_ID}]'
+              delay: 10s
+              history: 7d
+              trends: 30d
+              valuemap:
+                name: 'Status Downdetector'
+              tags:
+                - tag: Application
+                  value: Site
+              trigger_prototypes:
+                - uuid: ba3715eeb4e74ac6bbbef16e7942797c
+                  expression: 'avg(/RR DownDetector Discovery/downdetector_check.py[{#SITE_ID}],30m)=0'
+                  name: 'Não está sendo possível verificar {#SITE_NOME}'
+                  priority: INFO
+                - uuid: 2295bd7f9175411ca5c286935f116b6e
+                  expression: 'avg(/RR DownDetector Discovery/downdetector_check.py[{#SITE_ID}],20m)=2'
+                  name: '{#SITE_NOME} está apresentando intermitências'
+                  priority: WARNING
+                - uuid: df69b47b6f0147d08bc9fdb71ae4a47d
+                  expression: 'avg(/RR DownDetector Discovery/downdetector_check.py[{#SITE_ID}],10m)=3'
+                  name: '{#SITE_NOME} está instável'
+                  priority: HIGH
+          graph_prototypes:
+            - uuid: 3855648834544c34b3766207ab1762c6
+              name: 'DownDetector {#SITE_NOME}'
+              yaxismax: '4'
+              ymax_type_1: FIXED
+              graph_items:
+                - drawtype: GRADIENT_LINE
+                  color: FF0000
+                  yaxisside: RIGHT
+                  item:
+                    host: 'RR DownDetector Discovery'
+                    key: 'downdetector_check.py[{#SITE_ID}]'
+      valuemaps:
+        - uuid: 05d7e8f179174789a509ddbb4fa80063
+          name: 'Status Downdetector'
+          mappings:
+            - value: '0'
+              newvalue: Error
+            - value: '1'
+              newvalue: Estável
+            - value: '2'
+              newvalue: Intermitências
+            - value: '3'
+              newvalue: Instável
