@@ -6,9 +6,7 @@ Este projeto oferece uma solução integrada para monitorar o status de serviço
 
 ## Componentes Principais
 
-- **Zabbix**: Utilizado para coletar e armazenar dados de status de serviços.
-- **Grafana**: Ferramenta de visualização para apresentar os dados de forma gráfica.
-- **DownDetector**: Fonte de informações de status dos serviços monitorados.
+- **Zabbix - Grafana - DownDetector**
 
 ## Arquivos Incluídos
 
@@ -26,36 +24,70 @@ Este projeto oferece uma solução integrada para monitorar o status de serviço
 - **Zabbix**: Com suporte para scripts externos.
 - **Grafana**: Para visualização dos dados coletados.
 - **Playwright**: Para automação de navegador.
-  - Instalação: `pip install playwright`
-  - Inicialização: `playwright install`
 
 ## Instalação
 
-1. **Clone o repositório**:
-   git clone https://github.com/seuusuario/seuprojeto.git
-   cd seuprojeto
+#### Debian /Ubuntu ####
+1. **Instale as dependências**:
+```sh
+sudo apt update
+sudo apt install git
+sudo apt install python3.9 python3.9-venv python3.9-dev
+apt install python3-pip; \
+pip install beautifulsoup4 playwright
+```
 
-2. **Configuração do Zabbix**:
+2. **Clone o repositório e mova arquivos:**:
+```sh
+cd /tmp/
+git clone https://github.com/davidebsen/zabbixdowndetector.git
+cd zabbixdowndetector/
+```
+# Mover os arquivos para o diretório de scripts do Zabbix
+```sh
+sudo mv downdetector.py /usr/lib/zabbix/externalscripts
+sudo mv downdetector_check.py /usr/lib/zabbix/externalscripts
+sudo mv downdetectorDiscovery.py /usr/lib/zabbix/externalscripts
+sudo mv downdetector_result.json /usr/lib/zabbix/externalscripts
+sudo mv downdetectorlist.list /usr/lib/zabbix/externalscripts
+```
+# Ajustar as permissões dos arquivos
+```sh
+sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetector.py
+sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetector_check.py
+sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetectorDiscovery.py
+sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetector_result.json
+sudo chmod 755 /usr/lib/zabbix/externalscripts/downdetectorlist.list
+```
+# Alterar a propriedade dos arquivos para o usuário zabbix
+```sh
+sudo chown zabbix. /usr/lib/zabbix/externalscripts/downdetector*
+```
 
+3. **Configuração do Zabbix**:
 - Importe zbx_templates.xml no Zabbix.
-- Coloque downdetector.py, downdetector_check.py, e downdetectorDiscovery.py em /usr/lib/zabbix/externalscripts. com permissoes 0755
 
-3. **Configuração do Grafana**:
+4. **Configuração do Grafana**:
 
 - Importe o template JSON no Grafana.
 
-4. **Configuração do Cron**:
+5. **Configuração do Cron**:
 
 Para automatizar a execução do script downdetector.py, configure o cron da seguinte forma:
-
+- Executar Cron
+```sh
+crontab -e
+```
 - Executar em caso de reinicio do sistema:
-  @reboot /usr/bin/python3 /usr/lib/zabbix/externalscripts/downdetector.py
-
+```sh
+@reboot /usr/bin/python3 /usr/lib/zabbix/externalscripts/downdetector.py
+```
 - Executar a cada 2 horas:
-  0 */2 * * * /usr/bin/python3 /usr/lib/zabbix/externalscripts/downdetector.py
+```sh
+0 */2 * * * /usr/bin/python3 /usr/lib/zabbix/externalscripts/downdetector.py
+```
 
-
-4. **Configuração do downdetectorlist.list**:
+6. **Configuração do downdetectorlist.list**:
 Formato: status;site_id;Nome_do_Site
 - 1: O serviço será monitorado.
 - 0: O serviço não será monitorado.
